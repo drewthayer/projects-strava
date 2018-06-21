@@ -5,10 +5,6 @@ import requests
 from pymongo import MongoClient
 import numpy as np
 
-def insert_to_mongo(db, table, item):
-    db.table.insert(item)
-    print('inserted in db')
-
 def get_activities(client,limit):
     #Returns a list of Strava activity objects, up to the number specified by limit
     activities = client.get_activities(limit=limit)
@@ -31,6 +27,10 @@ port = 5000
 url = 'http://localhost:%d/authorized' % port
 
 if __name__=='__main__':
+    # initiate mongo database and connect
+    client = MongoClient('localhost',27017)  # Establish connection to persistent storage
+    db = client.Strava  # Access/Initiate Database
+
     # initialize stravalib client
     client = Client()
     authorize_url = client.authorization_url(client_id=client_id, redirect_uri=url)
@@ -42,35 +42,34 @@ if __name__=='__main__':
     # get activities for athlete
     activities = get_activities(client, limit=10)
 
-    # get one activity and access streams
-    all_acts = [x for x in activities]
-    act = all_acts[2]
+    # write activities to mongodb
+    all_activities = [x for x in activities] # list of all activities for user
     types = ['time', 'latlng', 'altitude', 'distance']
-    streams = client.get_activity_streams(act.id, types=types, resolution='medium')
 
-    # parse streams data
-    latlng = np.array(streams['latlng'].data)
-    ts = streams['time'].data
-    alt = streams['altitude'].data
-    dist = streams['distance'].data
-    lat = latlng[:,0]
-    lon = latlng[:,1]
+    for activity in all_activities:
+        act_id = activity.id
+        streams = client.get_activity_streams(activity.id, types=types, resolution='medium')
 
-    # initiate mongo database
-    tableid = str(act.id)
-    client = MongoClient('localhost:27017')  # Establish connection to persistent storage
-    db = client.Strava  # Access/Initiate Database
-    collection = db.activity1 # initiate collection
-    #activity_table = db[tableid]        # Access/Initiate Table
+        # parse streams data
+        latlng = np.array(streams['latlng'].data)
+        ts = streams['time'].data
+        alt = streams['altitude'].data
+        dist = streams['distance'].data
+        lat = latlng[:,0]
+        lon = latlng[:,1]
 
-    # insert activity to collection
-    activity = {'ts_id': streams['time'].data,
-                'altitude': streams['altitude'].data,
-                'distance': streams['distance'].data,
-                'lat': latlng[:,0].tolist(), # serialize np arrays
-                'lon': latlng[:,1].tolist()}
+        collection = db[str(act_id)] # initiate collection for activity
 
-    db.activity1.insert_one(activity)
+        # insert activity to collection
+        activity = {'ts_id': streams['time'].data,
+                    'altitude': streams['altitude'].data,
+                    'distance': streams['distance'].data,
+                    'lat': latlng[:,0].tolist(), # serialize np arrays
+                    'lon': latlng[:,1].tolist()}
+
+        collection.insert_one(activity)
+
+    print('written to mongodb')
 
 
     # # example: distances
