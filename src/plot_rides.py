@@ -70,6 +70,11 @@ class StravaActivity(object):
         plt.savefig('../figs/xy/{}_xy.png'.format(self.name), dpi=250)
         plt.close()
 
+    def plot_map_folium(self):
+        m = folium.Map(location=[self.lat, self.lon],
+              tiles='OpenStreetMap')
+        return m
+
     def plot_elev_profiles(self):
         plt.plot(self.dist, self.elev, 'ok', markersize=2)
         plt.xlabel('distance (m)')
@@ -121,9 +126,9 @@ if __name__=='__main__':
 
     # fit and plot all activities from class
     for activity, name in zip(activities, names):
-        act = StravaActivity(activity, name)
-        act.fit()
-        act.plot_all()
+       act = StravaActivity(activity, name)
+       act.fit()
+       act.plot_all()
 
 
     # plot all rides xy
