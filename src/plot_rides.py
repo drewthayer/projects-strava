@@ -112,10 +112,6 @@ if __name__=='__main__':
     # list of activities
     activities = [list(item.values())[1] for item in acts_list]
 
-    # names (update)
-    names = ['Horsetooth ride', 'Butler Gulch ski', 'Lookout ride', 'ride4', 'Torreys Peak ski', 'ride6',
-            'Glassier Buckthorn ride', 'Hay Park ride', 'Carbondale ride', 'ride10',]
-
     # switch:
     make_plots = True
     # fit and plot all activities from class

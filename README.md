@@ -10,6 +10,9 @@ steps:
   4. store each activity in a _StravaActivity_ class for easy calculations and plotting
   5. calculate metrics and make visualizations
 
+### heatmap of activities:
+<img alt="state map" src="/figs/map_state.png" width="500">
+
 
 ### activity visualizations:
 
