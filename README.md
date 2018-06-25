@@ -13,23 +13,23 @@ steps:
 
 ### activity visualizations:
 
-_example: Torrey's peak ski tour_
+_example: Doctor Park mountain ride near Crested Butte_
 
-- maps: lat, lon
+- maps view:
 
-<img alt="Torreys map" src="/figs/xy/Torreys Peak ski_xy.png" width="500">
+<img alt="Dr map" src="/figs/xy/Dr_park_rally_xy.png" width="500">
 
 - elevation profiles:
 
-<img alt="Torreys profile" src="/figs/elev_profiles/Torreys Peak ski_elev.png" width="500">
+<img alt="Dr profile" src="/figs/elev_profiles/Dr_park_rally_elev.png" width="500">
 
 - slope analysis:
 
-<img alt="Torreys" src="/figs/slope_profiles/Torreys Peak ski_slope.png" width='500'>
+<img alt="Dr slope" src="/figs/slope_profiles/Dr_park_rally_slope.png" width='500'>
 
 - speed analysis:
 
-<img alt="Torreys" src="/figs/speed/Torreys Peak ski_speed.png" width='500'>
+<img alt="Dr park" src="/figs/speed/Dr_park_rally_speed.png" width='500'>
 
 ### technologies:
   - python
