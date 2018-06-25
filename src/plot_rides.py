@@ -3,11 +3,6 @@ import matplotlib.pyplot as plt
 import folium
 import numpy as np
 
-def dict_from_mongodb_collection(db, coll_name):
-    coll = db[coll_name]
-    d = list(coll.find())[0]
-    return d
-
 def docs_from_mongodb_collection(db, coll_name):
     coll = db[coll_name]
     docs = []
@@ -18,8 +13,8 @@ def docs_from_mongodb_collection(db, coll_name):
 class StravaActivity(object):
     ''' a class for attributes of a Strava activity '''
 
-    def __init__(self, d, name):
-        self.name = name
+    def __init__(self, d):
+        self.name = d['name']
         self.type = None
         self.dist = d['distance']
         self.time = d['ts_id']
@@ -101,7 +96,6 @@ class StravaActivity(object):
         plt.savefig('../figs/speed/{}_speed.png'.format(self.name), dpi=250)
         plt.close()
 
-
     def plot_all(self):
         ''' generate all plots '''
         self.plot_xy()
@@ -109,13 +103,11 @@ class StravaActivity(object):
         self.plot_slopes()
         self.plot_mph()
 
-
-
 if __name__=='__main__':
     # initiate mongo database and connect
     client = MongoClient('localhost',27017)  # Establish connection to persistent storage
     db = client.Strava  # Access/Initiate Database
-    acts_list = docs_from_mongodb_collection(db,'Drew_Thayer') # list of activities, with id
+    acts_list = docs_from_mongodb_collection(db,'Drew_Thayer_user') # list of activities, with id
 
     # list of activities
     activities = [list(item.values())[1] for item in acts_list]
@@ -124,50 +116,31 @@ if __name__=='__main__':
     names = ['Horsetooth ride', 'Butler Gulch ski', 'Lookout ride', 'ride4', 'Torreys Peak ski', 'ride6',
             'Glassier Buckthorn ride', 'Hay Park ride', 'Carbondale ride', 'ride10',]
 
+    # switch:
+    make_plots = True
     # fit and plot all activities from class
-    for activity, name in zip(activities, names):
-       act = StravaActivity(activity, name)
+    if make_plots:
+        for activity in activities:
+           act = StravaActivity(activity)
+           act.fit()
+           act.plot_all()
+    else: print('plots off')
+
+    # plot all activities in map together
+    latlon_all = []
+    for activity in activities:
+       act = StravaActivity(activity)
        act.fit()
-       act.plot_all()
+       lat = act.lat
+       lon = act.lon
+       latlon_all.append((lat,lon))
 
+    for latlon in latlon_all:
+        plt.plot(latlon[1], latlon[0], 'o', markersize=2)
+    plt.xlabel('lon')
+    plt.ylabel('lat')
+    plt.show()
 
-    # plot all rides xy
-    # for d in activities:
-    #     plt.plot(d['lon'], d['lat'], 'ok')
-    #     plt.axis('equal')
-    #     plt.show()
-
-
-    # # plot elevation profiles
-    # for idx, d in enumerate(activities):
-    #     plt.plot(d['distance'], d['altitude'], 'ok', markersize=2)
-    #     plt.xlabel('distance (m)')
-    #     plt.ylabel('elevation (m)')
-    #     plt.title(names[idx])
-    #     #plt.axis('equal')
-    #     #plt.show()
-    #     plt.savefig('../figs/elev_profiles/{}_elev.png'.format(names[idx]), dpi=250)
-    #     plt.close()
-
-    # # grade analysis
-    # # calculate slopes for each ride
-    # slopes = []
-    # for d in activities:
-    #     slope_vec = []
-    #     xx = d['distance'] + [d['distance'][-1] + 0.1]
-    #     yy = d['altitude'] + [d['altitude'][-1]]
-    #     for idx in range(len(xx) - 1):
-    #         slope_vec.append((yy[idx + 1] - yy[idx])/(xx[idx + 1] - xx[idx]))
-    #     slopes.append(slope_vec)
-    #
-    # # plot slopes, separate
-    # for idx, vec in enumerate(slopes):
-    #     plt.plot(d['distance'], vec, 'og', markersize=2)
-    #     plt.xlabel('distance (m)')
-    #     plt.ylabel('slope')
-    #     plt.title(names[idx] + ' slope')
-    #     plt.savefig('../figs/slope_profiles/{}_slope.png'.format(names[idx]), dpi=250)
-    #     plt.close()
     #
     # # plot slopes, together
     # for idx, vec in enumerate(slopes):

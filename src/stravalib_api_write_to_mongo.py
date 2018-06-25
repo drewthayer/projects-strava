@@ -19,6 +19,37 @@ def get_athlete(client):
         athlete.firstname, athlete.lastname))
     return athlete
 
+def write_activities_to_mongo(activities, types, collection):
+    all_activities = [x for x in activities] # list of all activities for user
+    i = 0
+    for activity in all_activities:
+        act_id = activity.id
+        name = activity.name
+        streams = client.get_activity_streams(activity.id, types=types, resolution='medium')
+
+        # parse streams data
+        latlng = np.array(streams['latlng'].data)
+        ts = streams['time'].data
+        alt = streams['altitude'].data
+        dist = streams['distance'].data
+        lat = latlng[:,0]
+        lon = latlng[:,1]
+
+        # insert activity to collection
+        d = {}
+        d['activity_' + str(act_id)] = {
+                    'name': name,
+                    'ts_id': streams['time'].data,
+                    'altitude': streams['altitude'].data,
+                    'distance': streams['distance'].data,
+                    'lat': latlng[:,0].tolist(), # serialize np arrays
+                    'lon': latlng[:,1].tolist()}
+
+        collection.insert_one(d)
+        i += 1
+
+    print('{} activities written to mongodb'.format(i))
+
 # id and port info
 client_id = open('client.id')
 client_secret = os.environ['STRAVA_CLIENT_SECRET']
@@ -38,80 +69,12 @@ if __name__=='__main__':
     # get activities for athlete
     activities = get_activities(client, limit=10)
 
-    # initiate mongo database and connect
+    # initiate mongo database, connect, make collection
     db_client = MongoClient('localhost',27017)  # Establish connection to persistent storage
     db = db_client.Strava  # Access/Initiate Database
-    coll_name = '{}_{}'.format(athlete.firstname, athlete.lastname)
+    coll_name = '{}_{}_user'.format(athlete.firstname, athlete.lastname)
     collection = db[coll_name]
 
     # write activities to mongodb
-    all_activities = [x for x in activities] # list of all activities for user
-    types = ['time', 'latlng', 'altitude', 'distance']
-
-    i = 0
-    for activity in all_activities:
-        act_id = activity.id
-        streams = client.get_activity_streams(activity.id, types=types, resolution='medium')
-
-        # parse streams data
-        latlng = np.array(streams['latlng'].data)
-        ts = streams['time'].data
-        alt = streams['altitude'].data
-        dist = streams['distance'].data
-        lat = latlng[:,0]
-        lon = latlng[:,1]
-
-        #collection = db[str(act_id)] # initiate collection for activity
-
-
-        # insert activity to collection
-        d = {}
-        d['activity_' + str(act_id)] = {'ts_id': streams['time'].data,
-                    'altitude': streams['altitude'].data,
-                    'distance': streams['distance'].data,
-                    'lat': latlng[:,0].tolist(), # serialize np arrays
-                    'lon': latlng[:,1].tolist()}
-
-        collection.insert_one(d)
-        i += 1
-        print(i)
-
-    print('written to mongodb')
-
-
-    # # example: distances
-    # dists= []
-    # for act in activities:
-    #     dists.append(act.distance) # list of distance objects
-    #     print(unithelper.miles(act.distance)) # can call float() to get just number
-    #
-    #
-    # # Activities can have many streams, you can request n desired stream types
-
-    #
-    # #  Result is a dictionary object.  The dict's key are the stream type.
-    # if 'altitude' in streams.keys():
-    #     print(streams['altitude'].data)
-    #
-    # # plot altitudes from a ride
-    # import matplotlib.pyplot as plt
-    # plt.plot(streams['altitude'].data)
-    # plt.show()
-    #
-    # if 'latlng' in streams.keys(): # this works, plot in folium
-    #     print('yes')
-    #
-    # # plot lat long with matplotlib
-    # # loop method
-    # latlng = streams['latlng'].data # list of lists
-    # fig, ax = plt.subplots()
-    # for pair in latlng:
-    #     plt.plot(pair[0], pair[1], 'ok')
-    # plt.show()
-    #
-    # # numpy method way faster
-    # import numpy as np
-    # latlng = np.array(streams['latlng'].data)
-    # plt.plot(lon, lat, 'ok')
-    # plt.axis('equal')
-    # plt.show()
+    types = ['name', 'time', 'latlng', 'altitude', 'distance']
+    write_activities_to_mongo(activities, types, collection)
