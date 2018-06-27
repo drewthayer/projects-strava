@@ -3,7 +3,7 @@ src folder README
 ### Workflow
 
 1. get data from Strava api, save to mongo database
-  - _read_from_mongo.py_: read strava user data, write to db
+  - _stravalib_api_write_to_mongo.py_
 
 2. generate basic plots for activities
   - _plot_activities.py_
@@ -19,4 +19,4 @@ src folder README
      - helper scripts for interacting with pymongo
 
   - StravaActivity.py
-     - class with attributes of/ calculations for strava activity 
+     - class with attributes of/ calculations for strava activity

@@ -22,7 +22,11 @@ class StravaActivity(object):
         self.mph = []
 
     def calc_slopes(self):
-        ''' calculate slopes for each interval'''
+        ''' calculate slopes for each interval
+        input:  self.dist (list)
+                self.elev (list)
+        returns:
+                self.slopes (np array)'''
         # pad the end with ~ last val
         xx = self.dist + [self.dist[-1] + 0.00001] # plus dx to avoid div/0
         yy = self.elev + [self.elev[-1]]
@@ -36,8 +40,7 @@ class StravaActivity(object):
         input:  self.dist (list)
                 self.time (list)
         returns:
-                self.velocities (np array)
-        '''
+                self.velocities (np array)'''
         xx = self.dist + [self.dist[-1] + 0.1] # plus dx to avoid div/0
         tt = self.time + [self.time[-1] + 0.1]
 
@@ -47,7 +50,13 @@ class StravaActivity(object):
         self.max_velocity = np.max(self.velocities)
 
     def standard_units(self):
-        ''' calculate standard units for easy interpretation'''
+        ''' calculate standard units for easy interpretation
+        input:  self.dist (list)
+                self.time (list)
+        returns:
+                self.tot_dist_mi (list)
+                self.tot_time_hr (list)
+                self.mph (np array)'''
         conv_meter_mile = 1600
         # migrate numpy arrays up for derivative
         # distance
@@ -59,6 +68,7 @@ class StravaActivity(object):
         self.mph = vel * 1/conv_meter_mile * 60 * 60
 
     def print_summary(self):
+        ''' print summary statements'''
         print('\nactivity: {}'.format(self.name))
         print('distance: {:0.2f} mi'.format(self.tot_dist_mi))
         print('time: {:0.2f} hr'.format(self.tot_time_hr))
