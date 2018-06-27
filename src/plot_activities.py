@@ -3,16 +3,16 @@ import matplotlib.pyplot as plt
 import folium
 import numpy as np
 
-import StravaActivity
+from StravaActivity import StravaActivity
+from scripts.pymongo_scripts import docs_from_mongodb_collection
 
-def docs_from_mongodb_collection(db, coll_name):
-    coll = db[coll_name]
-    docs = []
-    for doc in coll.find():
-        docs.append(doc)
-    return docs
-
-
+def plot_all(activities_list, switch=True):
+    if switch:
+        for activity in activities_list:
+           act = StravaActivity(activity)
+           act.fit()
+           act.plot_all()
+    else: print('\nplots: off')
 
 if __name__=='__main__':
     # initiate mongo database and connect
@@ -23,15 +23,8 @@ if __name__=='__main__':
     # list of activities
     activities = [list(item.values())[1] for item in acts_list]
 
-    # switch:
-    make_plots = True
     # fit and plot all activities from class
-    if make_plots:
-        for activity in activities:
-           act = StravaActivity(activity)
-           act.fit()
-           act.plot_all()
-    else: print('plots off')
+    plot_all(activities, switch=True)
 
     # plot all activities in map together
     latlon_all = []
