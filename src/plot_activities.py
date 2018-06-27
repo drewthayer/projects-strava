@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 import matplotlib.pyplot as plt
 
-from StravaActivity import StravaActivity
+from scripts.StravaActivity import StravaActivity
 from scripts.pymongo_scripts import docs_from_mongodb_collection
 
 def plot_all(activities_list, switch=True):
