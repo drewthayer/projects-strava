@@ -38,5 +38,5 @@ _example: Doctor Park mountain ride near Crested Butte_
   - python
     - stravalib
     - pymongo
-    - folium 
+    - folium
   - MongoDB
