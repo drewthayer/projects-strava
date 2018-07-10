@@ -21,6 +21,9 @@ class StravaActivity(object):
         self.velocities = []
         self.mph = []
 
+    def name_string_remove_spaces(self):
+        self.name.replace(' ', '_')
+
     def calc_slopes(self):
         ''' calculate slopes for each interval
         input:  self.dist (list)
