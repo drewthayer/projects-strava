@@ -35,7 +35,6 @@ def write_to_s3(bucket, data, fname):
 def write_activities_to_s3(activities, types, bucket):
     all_activities = [x for x in activities] # list of all activities for user
     i = 0
-    out = []
     for activity in all_activities:
         act_id = activity.id
         name = activity.name
@@ -59,7 +58,6 @@ def write_activities_to_s3(activities, types, bucket):
                     'distance': streams['distance'].data,
                     'lat': latlng[:,0].tolist(), # serialize np arrays
                     'lon': latlng[:,1].tolist()}
-        out.append(d)
 
         #write dictionary to s3 as json
         write_to_s3(bucket, d, dname + '.json')
