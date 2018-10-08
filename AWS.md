@@ -9,4 +9,4 @@
   - export STRAVA_ACCESS_TOKEN='token'
   - export STRAVA_CLIENT_SECRET='token'
 
-NOTE: scripts cannon import matplotlib 
+NOTE: scripts cannot import matplotlib 
